@@ -6,10 +6,10 @@ const { Orders } = require('./models/order');
 const { Petitions } = require('./models/petitions');
 const { Storage } = require('./models/storage');
 const { Products } = require('./models/products');
-const { Roles } = require('./models/roles');
 
 // Utils
 const { db } = require('./DB/db');
+const { Markets } = require('./models/market');
 
 db.authenticate()
 	.then(() => console.log('Db authenticated'))
@@ -18,16 +18,22 @@ db.authenticate()
 // Establish model's relations
 // 1 User <----> M Post
 //has many
-Users.hasMany(Orders,{ foreignKey:'userId' });
-Roles.hasMany(Users,{ foreignKey:'roleId' });
+Users.hasMany(Orders, { foreignKey:'userId' });
+Users.hasMany(Markets, { foreignKey: 'userId' });
+Users.hasMany(Storage, { foreignKey: 'userId' });
+Markets.hasMany(Products, { foreignKey: 'marketId' });
+Markets.hasMany(Orders, { foreignKey: 'marketId' });
 Orders.hasMany(Petitions,{ foreignKey:'orderId' });
 Storage.hasMany(Products,{ foreignKey:'storageId' });
 
 //belongs to
-Users.belongsTo(Roles);
+Markets.belongsTo(Users);
 Orders.belongsTo(Users);
+Orders.belongsTo(Markets);
 Products.belongsTo(Storage);
+Products.belongsTo(Markets);
 Petitions.belongsTo(Orders);
+Storage.belongsTo(Users);
 
 //belongs to many
 

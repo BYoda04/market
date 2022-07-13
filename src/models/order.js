@@ -16,6 +16,10 @@ const Orders = db.define('orders', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    marketId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 });
 

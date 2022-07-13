@@ -1,7 +1,7 @@
 const { db, DataTypes } = require('../DB/db');
 
 //Model table
-const Roles = db.define('roles', {
+const Markets = db.define('markets', {
     id: {
         primaryKey: true,
         type: DataTypes.INTEGER,
@@ -12,13 +12,26 @@ const Roles = db.define('roles', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    number: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    suscription: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'free'
+    },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'active'
+		defaultValue: 'active',
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 });
 
 module.exports = {
-    Roles
+    Markets
 };

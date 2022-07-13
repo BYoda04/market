@@ -8,8 +8,10 @@ const cors = require('cors');
 const path = require('path');
 
 // Routers
-const { rolesRouter } = require('./routes/roles.routes');
 const { usersRouter } = require('./routes/users.routes');
+const { marketsRouter } = require('./routes/market.routes');
+const { storageRouter } = require('./routes/storage.routes');
+const { productsRouter } = require('./routes/products.routes');
 
 // Global err controller
 const { globalErrorHandler } = require('./utils/globalErrorHandler');
@@ -44,8 +46,10 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 else app.use(morgan('combined'));
 
 // Define endpoints
-app.use('/api/v1/roles', rolesRouter);
 app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/markets', marketsRouter);
+app.use('/api/v1/storage', storageRouter);
+app.use('/api/v1/products', productsRouter);
 
 // Handle incoming unknown routes to the server
 app.all('*', (req, res, next) => {

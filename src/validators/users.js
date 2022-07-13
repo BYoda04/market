@@ -18,22 +18,28 @@ const checkResult = (req, res, next) => {
 	next();
 };
 
-
-/* 
-when create a users client
-body('password')
-.isLength({ min: 5 })
-.withMessage('Password must be at least 5 characters long')
-.isAlphanumeric()
-.withMessage('Password must contain letters and numbers'), */
+/*
+*search and agree
+body('number').isMobilePhone({ locale: ['es-pe'] }).withMessage('Number invalid try again'),
+*/
 
 const usersValidator = [
 	body('name').notEmpty().withMessage('Name cannot be empty'),
 	body('email').isEmail().withMessage('Must provide a valid email'),
+	body('password')
+	.isLength({ min: 5 })
+	.withMessage('Password must be at least 5 characters long')
+	.isAlphanumeric()
+	.withMessage('Password must contain letters and numbers'),
 	checkResult,
 ];
 
 const passwordValidator = [
+	body('last_password')
+		.isLength({ min: 5 })
+		.withMessage('Password must be at least 5 characters long')
+		.isAlphanumeric()
+		.withMessage('Password must contain letters and numbers'),
 	body('password')
 		.isLength({ min: 5 })
 		.withMessage('Password must be at least 5 characters long')

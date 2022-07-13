@@ -12,6 +12,10 @@ const Users = db.define('users', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    number: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -19,18 +23,22 @@ const Users = db.define('users', {
     },
     password: {
         type: DataTypes.STRING,
+        allowNull: false
+    },
+    suscription: {
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'pass123'
+		defaultValue: 'free',
     },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
 		defaultValue: 'active',
     },
-    roleId: {
-        type: DataTypes.INTEGER,
+    role: {
+        type: DataTypes.STRING,
         allowNull: false,
-		defaultValue: 2,
+		defaultValue: 'client',
     }
 });
 

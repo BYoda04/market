@@ -16,6 +16,10 @@ const Storage = db.define('storage', {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: 'active'
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 });
 

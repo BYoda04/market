@@ -3,20 +3,22 @@ const jwt = require('jsonwebtoken');
 
 //models
 const { Users } = require('../models/users');
-const { Roles } = require('../models/roles');
+const { Markets } = require('../models/market');
 
 //utils
 const { catchAsync } = require("../utils/catchAsync");
+const { AppError } = require('../utils/appError');
 
 //controllers
 const create = catchAsync(async (req,res,next)=>{
-    const { name,email,password } = req.body;
+    const { name,email,number,password } = req.body;
 
     const salt = await bcrypt.genSalt(12);
     const encryptPass = await bcrypt.hash(password,salt);
 
     const newUser = await Users.create({
         name,
+        number,
         email,
         password: encryptPass
     });
@@ -49,15 +51,8 @@ const login = catchAsync(async (req,res,next)=>{
         return next(new AppError('Invalid password',404));
     };
 
-    const role = await Roles.findOne({
-        id: user.roleId,
-        status: 'active'
-    })
-
     const token = jwt.sign({ 
-        id: user.id,
-        role,
-        roleId: user.roleId
+        id: user.id
     },process.env.JWT_SIGN,{
         expiresIn:'24h',
     });
@@ -70,13 +65,27 @@ const login = catchAsync(async (req,res,next)=>{
 
 const update = catchAsync(async (req,res,next)=>{
     const { user, userSession } = req;
-    const { name,email } = req.body;
+    const { name,number} = req.body;
 
-    if (parseInt(user.dataValues.id) !== parseInt(userSession.id)) {
+    if (parseInt(user.id) !== parseInt(userSession.id)) {
         return next(new AppError('You dont have permission',404))
-    }
+    };
 
-    await user.update({ name,email });
+    if (name) {
+        await user.update({
+            name
+        });
+    };
+
+    if (number) {
+        if (number.substr(0,3) !== '+51') {
+            return next(new AppError('Number invalid',404))
+        }
+
+        await user.update({
+            number
+        });
+    };
 
     res.status(201).json({ status: 'success' });
 });
@@ -116,24 +125,24 @@ const updatePassword = catchAsync(async (req,res,next)=>{
 const deleted = catchAsync(async (req,res,next)=>{
     const { user, userSession } = req;
 
-    if (parseInt(user.dataValues.id) !== parseInt(userSession.id)) {
+    if (parseInt(user.id) !== parseInt(userSession.id)) {
         return next(new AppError('You dont have permission',404))
     }
 
-    const restaurants = await Restaurants.findAll({
+    const markets = await Markets.findAll({
         where: {
             userId: userSession.id,
             status: 'active'
         }
     })
 
-    if (restaurants) {
-        restaurants.map(async restaurant=>{
-            await restaurant.update({ status: 'deleted' });
+    if (!markets.length) {
+        markets.map(async market=>{
+            await market.update({ status: 'delete' });
         })
     }
 
-    await user.update({ status: 'deleted' });
+    await user.update({ status: 'delete' });
 
     res.status(201).json({ status: 'success' });
 });

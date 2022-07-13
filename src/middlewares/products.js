@@ -1,4 +1,5 @@
 //Models
+const { Markets } = require('../models/market');
 const { Products } = require('../models/products');
 const { Storage } = require('../models/storage');
 
@@ -12,13 +13,17 @@ const productExist = catchAsync(async (req,res,next)=>{
 	const product = await Products.findOne({ 
 		where:{
 			id,
-			status: true
+			status: 'active'
 		},
         include:[
             {
                 model: Storage,
                 attributes: ['id','url','createdAt','updatedAt']
-            }
+            },
+			{
+				model: Markets,
+				attributes: ['id','name','userId']
+			}
         ],
         attributes: ['id','name','quantity','price','createdAt','updatedAt']
 	});

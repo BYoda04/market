@@ -8,13 +8,14 @@ const { catchAsync } = require("../utils/catchAsync");
 
 //controllers
 const create = catchAsync(async (req,res,next)=>{
-    const { name,quantity,price,storageId } = req.body;
+    const { name,quantity,price,storageId,marketId } = req.body;
 
     const newProduct = await Products.create({
         name,
         quantity,
         price,
-        storageId
+        storageId,
+        marketId
     });
 
     res.status(200).json({
@@ -24,8 +25,12 @@ const create = catchAsync(async (req,res,next)=>{
 });
 
 const update = catchAsync(async (req,res,next)=>{
-    const { product } = req;
-    const { name,quantity,price } = req.body;
+    const { product,userSession } = req;
+    const { name,quantity,price,storageId } = req.body;
+
+    if (parseInt(product.market.id) !== parseInt(userSession.id)) {
+        return next(new AppError('You dont owner this product',403));
+    };
 
     if (name) {
         await product.update({
@@ -43,7 +48,25 @@ const update = catchAsync(async (req,res,next)=>{
         await product.update({
             price
         })
+    };
+
+    if (storageId) {
+        const storage = await Storage.findOne({
+            where: {
+                id: storageId,
+                status: 'active'
+            }
+        });
+
+        if (!storage) {
+            return next(new AppError('Invalid storage id try again',404));
+        };
+
+        await product.update({
+            storageId
+        })
     }
+
 
     res.status(201).json({
         status: 'success'
@@ -51,10 +74,14 @@ const update = catchAsync(async (req,res,next)=>{
 });
 
 const deleted = catchAsync(async (req,res,next)=>{
-    const { product } = req;
+    const { product,userSession } = req;
+    
+    if (parseInt(product.market.id) !== parseInt(userSession.id)) {
+        return next(new AppError('You dont owner this product',403));
+    };
 
     await product.update({
-        status: "delete"
+        status: 'delete'
     });
 
     res.status(201).json({
@@ -62,44 +89,8 @@ const deleted = catchAsync(async (req,res,next)=>{
     });
 });
 
-const getItems = catchAsync(async (req,res,next)=>{
-
-    const products = await Products.findAll({
-        where:{
-            status: 'active',
-        },
-        include:[
-            {
-                model: Storage,
-                attributes: ['id','url','createdAt','updatedAt']
-            }
-        ],
-        attributes: ['id','file_name','permission','userId','createdAt','updatedAt']
-    });
-
-    if (!products.length) {
-        return next(new AppError('Products not avaliable',404))
-    }
-
-    res.status(200).json({
-        status: 'success',
-        data
-    });
-});
-
-const getItem = catchAsync(async (req,res,next)=>{
-    const { data } = req;
-
-    res.status(200).json({
-        status: 'success',
-        data
-    })
-});
-
 module.exports = {
     create,
     update,
     deleted,
-    getItems,
-    getItem,
 };

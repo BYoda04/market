@@ -1,4 +1,5 @@
 const multer = require('multer');
+const fs = require('fs');
 
 //models
 const { Storage } = require('../models/storage');
@@ -10,7 +11,7 @@ const { AppError } = require('../utils/appError');
 const storage = multer.diskStorage({
     destination: function (req,file,cb){
 
-        const pathstorage = `${__dirname}/../storage/`
+        const pathstorage = `${__dirname}/../storage/${req.destination}`
         
         cb(null,pathstorage);
     },
@@ -29,7 +30,7 @@ const fileExist = catchAsync(async (req,res,next)=>{
     const file = await Storage.findOne({
         where:{
             id,
-            status: true
+            status: 'active'
         }
     });
 
@@ -39,10 +40,31 @@ const fileExist = catchAsync(async (req,res,next)=>{
 
     req.file = file;
 
-    next()
+    next();
+});
+
+const storageExists = catchAsync(async (req,res,next)=>{
+    const { market,userSession } = req;
+
+    if (parseInt(market.user.id) !== parseInt(userSession.id)) {
+        return next(new AppError('You dont the owner this market',403));
+    };
+
+    const name = market.name.replace(/ /g, "-")
+
+    fs.access(`${__dirname}/../storage/${name}`,async (err)=>{
+        if (err) {
+            fs.mkdirSync(`${__dirname}/../storage/${name}`,{ recursive:true });
+        };
+    });
+
+    req.destination = name
+
+    next();
 })
 
 module.exports = {
     uploadMiddleware,
-    fileExist
+    fileExist,
+    storageExists
 }

@@ -17,7 +17,7 @@ const Products = db.define('products', {
         allowNull: false
     },
     price: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DECIMAL,
         allowNull: false
     },
     status: {
@@ -26,6 +26,10 @@ const Products = db.define('products', {
 		defaultValue: 'active',
     },
     storageId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    marketId: {
         type: DataTypes.INTEGER,
         allowNull: false
     }
