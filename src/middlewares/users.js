@@ -1,4 +1,5 @@
 //models
+const { Markets } = require("../models/market");
 const { Users } = require("../models/users");
 
 //utils
@@ -13,6 +14,13 @@ const userExists = catchAsync(async (req,res,next)=>{
             id,
             status:'active'
         },
+        include: [
+            {
+                model: Markets,
+                attributes: ['id','name','number','status','createdAt','updatedAt']
+            }
+        ],
+        attributes: ['id','name','number','email','password','role','createdAt','updatedAt']
     });
 
     if (!user) {

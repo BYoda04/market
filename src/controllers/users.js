@@ -87,7 +87,9 @@ const update = catchAsync(async (req,res,next)=>{
         });
     };
 
-    res.status(201).json({ status: 'success' });
+    res.status(201).json({ 
+        status: 'success'
+    });
 });
 
 const updatePassword = catchAsync(async (req,res,next)=>{
@@ -144,7 +146,9 @@ const deleted = catchAsync(async (req,res,next)=>{
 
     await user.update({ status: 'delete' });
 
-    res.status(201).json({ status: 'success' });
+    res.status(201).json({ 
+        status: 'success'
+    });
 });
 
 module.exports = {

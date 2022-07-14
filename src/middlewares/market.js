@@ -7,17 +7,17 @@ const { AppError } = require("../utils/appError");
 const { catchAsync } = require("../utils/catchAsync");
 
 const marketExists = catchAsync(async (req,res,next)=>{
-    const { id } = req.params;
+    const { marketId } = req.params;
 
     const market = await Markets.findOne({
         where: {
-            id,
+            id: marketId,
             status:'active'
         },
         include:[
             {
                 model: Users,
-                attributes: ['id','name','email','number','createdAt','updatedAt']
+                attributes: ['id','name','email','number','role','createdAt','updatedAt']
             }
         ],
         attributes: ['id','name','number','suscription','status','createdAt','updatedAt']

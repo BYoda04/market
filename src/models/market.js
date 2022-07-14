@@ -21,14 +21,15 @@ const Markets = db.define('markets', {
         allowNull: false,
         defaultValue: 'free'
     },
+    onlinePayment: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
 		defaultValue: 'active',
-    },
-    userId: {
-        type: DataTypes.INTEGER,
-        allowNull: false
     }
 });
 

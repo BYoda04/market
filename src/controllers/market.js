@@ -3,17 +3,18 @@ const fs = require('fs');
 //models
 const { Markets } = require("../models/market");
 const { Users } = require("../models/users");
+const { Products } = require('../models/products');
+const { Storage } = require('../models/storage');
+const { UsersInMarkets } = require('../models/usersInMarkets');
 
 //utils
 const { catchAsync } = require("../utils/catchAsync");
 const { AppError } = require("../utils/appError");
-const { Products } = require('../models/products');
-const { Storage } = require('../models/storage');
 
 //controllers
 const create = catchAsync(async (req,res,next)=>{
     const { user,userSession } = req;
-    const { name,number,userId } = req.body;
+    const { name,number } = req.body;
 
     if (parseInt(user.id) !== parseInt(userSession.id)) {
         return next(new AppError('You dont have permission',404))
@@ -21,8 +22,7 @@ const create = catchAsync(async (req,res,next)=>{
 
     const newMarket = await Markets.create({
         name,
-        number,
-        userId
+        number
     });
 
     if (!newMarket) {
@@ -32,6 +32,15 @@ const create = catchAsync(async (req,res,next)=>{
     await user.update({
         role: 'admin'
     });
+
+    const newRelation = await UsersInMarkets.create({
+        userId: userSession.id,
+        marketId: newMarket.id
+    })
+
+    if (!newRelation) {
+        return next(new AppError('Market relation error',502));
+    };
 
     const nameDiretory = newMarket.name.replace(/ /g, "-")
 
@@ -47,9 +56,15 @@ const create = catchAsync(async (req,res,next)=>{
     });
 });
 
+const createSellers = catchAsync(async (req,res,next)=>{
+    const { market,user,userSession } = req;
+
+    console.log(market);
+})
+
 const update = catchAsync(async (req,res,next)=>{
     const { market,userSession } = req;
-    const { name,number } = req.body;
+    const { name,number,onlinePayment } = req.body;
 
     if (parseInt(market.user.id) !== userSession.id) {
         return next(new AppError('You dont owner this market',403));
@@ -70,6 +85,12 @@ const update = catchAsync(async (req,res,next)=>{
             number
         });
     };
+
+    if (onlinePayment) {
+        await market.update({
+            onlinePayment
+        })
+    }
 
     res.status(201).json({
         status: 'success'
@@ -135,6 +156,12 @@ const getAllItems = catchAsync(async (req,res,next)=>{
         return next(new AppError('Dont markets exists',404));
     };
 
+    data.map(market=>{
+        market.users.map(user=>{
+            user.usersInMarkets = undefined;
+        });
+    });
+
     res.status(200).json({
         status: 'success',
         data
@@ -178,6 +205,7 @@ const getItem = catchAsync(async (req,res,next)=>{
 
 module.exports = {
     create,
+    createSellers,
     update,
     updateStatus,
     deleted,

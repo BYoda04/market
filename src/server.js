@@ -19,7 +19,6 @@ db.authenticate()
 // 1 User <----> M Post
 //has many
 Users.hasMany(Orders, { foreignKey:'userId' });
-Users.hasMany(Markets, { foreignKey: 'userId' });
 Users.hasMany(Storage, { foreignKey: 'userId' });
 Markets.hasMany(Products, { foreignKey: 'marketId' });
 Markets.hasMany(Orders, { foreignKey: 'marketId' });
@@ -27,7 +26,6 @@ Orders.hasMany(Petitions,{ foreignKey:'orderId' });
 Storage.hasMany(Products,{ foreignKey:'storageId' });
 
 //belongs to
-Markets.belongsTo(Users);
 Orders.belongsTo(Users);
 Orders.belongsTo(Markets);
 Products.belongsTo(Storage);
@@ -36,6 +34,14 @@ Petitions.belongsTo(Orders);
 Storage.belongsTo(Users);
 
 //belongs to many
+Users.belongsToMany(Markets,{
+	foreignKey: 'userId',
+	through:'usersInMarkets'
+});
+Markets.belongsToMany(Users,{
+	foreignKey: 'marketId',
+	through:'usersInMarkets'
+});
 
 db.sync()
 	.then(() => console.log('Db synced'))
